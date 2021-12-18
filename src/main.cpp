@@ -2,6 +2,9 @@
 #include <ESP8266WiFi.h>
 #include <espnow.h> 
 
+int R_Led_pin = 12;
+int G_Led_pin = 12;
+int B_Led_pin = 12;
 
 float Sender=12; // Sender ID 10 for TX 11 for RX1 12 for RX2
 float IGN_Status_1=0;
@@ -73,37 +76,7 @@ void initEspNow() {
     else {
       Serial.println("Wrong safety word");
     }
-
-      
-
-    
   });
-}
-
-
-  
-
-
-
-void setup() {
-  delay(100);
-  Serial.begin(115200);
-
-  
-  WiFi.mode(WIFI_STA); // Station mode for esp-now sensor node
-  WiFi.disconnect();
-
-  Serial.printf("This mac: %s, ", WiFi.macAddress().c_str()); 
-  Serial.printf("target mac 1: %02x%02x%02x%02x%02x%02x", remoteMac_1[0], remoteMac_1[1], remoteMac_1[2], remoteMac_1[3], remoteMac_1[4], remoteMac_1[5]); 
-  Serial.printf("target mac 2: %02x%02x%02x%02x%02x%02x", remoteMac_2[0], remoteMac_2[1], remoteMac_2[2], remoteMac_2[3], remoteMac_2[4], remoteMac_2[5]); 
-  Serial.printf(", channel: %i\n", WIFI_CHANNEL); 
-
-  if (esp_now_init() != 0) {
-    Serial.println("*** ESP_Now init failed");
-    
-  }
-
-  initEspNow();
 
   esp_now_register_send_cb([](uint8_t* mac, uint8_t sendStatus) {
     Serial.printf("send_cb, send done, status = %i\n", sendStatus);
@@ -112,14 +85,52 @@ void setup() {
 }
 
 
-
-
-void sendData() {
+void sendAll() {
 uint8_t bs[sizeof(messageData)];
   memcpy(bs, &messageData, sizeof(messageData));
   esp_now_send(NULL, bs, sizeof(messageData)); // NULL means send to all peers
 
+} 
+
+void sendTo(uint8_t* mac) {
+uint8_t bs[sizeof(messageData)];
+  memcpy(bs, &messageData, sizeof(messageData));
+  esp_now_send(mac, bs, sizeof(messageData)); // NULL means send to all peers
+
+} 
+
+
+void setup() {
+  delay(100);
+  
+  //PIN init
+  pinMode(R_Led_pin, OUTPUT);
+  analogWrite(R_Led_pin, 0);
+  pinMode(G_Led_pin, OUTPUT);
+  analogWrite(G_Led_pin, 255);
+  pinMode(B_Led_pin, OUTPUT);
+  analogWrite(B_Led_pin, 255);
+  Serial.begin(115200);
+
+  //ESP-NOW Init
+
+  WiFi.mode(WIFI_STA); // Station mode for esp-now sensor node
+  WiFi.disconnect();
+
+  Serial.printf("This mac: %s, ", WiFi.macAddress().c_str()); 
+  Serial.printf("target mac 1: %02x%02x%02x%02x%02x%02x", remoteMac_1[0], remoteMac_1[1], remoteMac_1[2], remoteMac_1[3], remoteMac_1[4], remoteMac_1[5]); 
+  Serial.printf("target mac 2: %02x%02x%02x%02x%02x%02x", remoteMac_2[0], remoteMac_2[1], remoteMac_2[2], remoteMac_2[3], remoteMac_2[4], remoteMac_2[5]); 
+  Serial.printf(", channel: %i\n", WIFI_CHANNEL); 
+
+  initEspNow();
+
+  
 }
+
+
+
+
+
 
 void loop() {
 
