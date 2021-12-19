@@ -9,7 +9,7 @@
 #define RX1_pin 13
 #define RX2_pin 2
 
-#define ID 12 // Sender ID 10 for TX 11 for RX1 12 for RX2
+
 int IGN_Status_1=0; // 0 - disconected 1-no igniter 2-Ready unarmed 3-Ready ARMED
 int IGN_Status_2=0;
 int IGN_FIRE_1=0;
@@ -28,7 +28,7 @@ uint8_t remoteMac_2[] = {0xA0, 0x20, 0xA6, 0x13, 0x60, 0xA8};
 char macBuf[18];
 
 struct __attribute__((packed)) MESSAGE {
-  int Sender = ID; // Sender ID 10 for TX 11 for RX1 12 for RX2
+  int Sender ;
   int IGN_Status = 0;
   int IGN_FIRE = 0;
 } messageData;
@@ -93,7 +93,7 @@ void initEspNow() {
 
 
 void sendAll() {
-  messageData.Sender = ID;
+  messageData.Sender = 100;
 uint8_t bs[sizeof(messageData)];
   memcpy(bs, &messageData, sizeof(messageData));
   esp_now_send(NULL, bs, sizeof(messageData)); // NULL means send to all peers
@@ -101,7 +101,7 @@ uint8_t bs[sizeof(messageData)];
 } 
 
 void sendTo(uint8_t* mac) {
-  messageData.Sender = ID;
+  messageData.Sender = 101;
 uint8_t bs[sizeof(messageData)];
   memcpy(bs, &messageData, sizeof(messageData));
   esp_now_send(mac, bs, sizeof(messageData)); 
