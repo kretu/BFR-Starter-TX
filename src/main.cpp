@@ -138,7 +138,7 @@ void setup() {
   formatMacAddress(remoteMac_1, macBuf, 18);
   Serial.println(macBuf);
   initEspNow();
-
+  LED(255,255,255);
   
 }
 
@@ -150,56 +150,73 @@ void setup() {
 void loop() {
 
   if(millis()>timer+SEND_TIMEOUT){
-
+    timer=millis();
     if(!digitalRead(RX1_pin)){
       if(IGN_Status_1==0){
         LED(0,255,255);
+        Serial.println("RX1 Ign STATUS disconnected");
       }
       if(IGN_Status_1==1){
         LED(0,255,0);
+        Serial.println("RX1 Ign STATUS NO IGNITER");
       }
       if(IGN_Status_1==2){
         LED(255,0,0);
+        Serial.println("RX1 Ign STATUS IGNITER OK");
       }
       if(IGN_Status_1==3){
         LED(255,0,255);
+        Serial.println("RX1 Ign STATUS ARMED");
       }
       if(IGN_Status_1==3&&!digitalRead(IGN_pin)){
         LED(0,0,0);
         delay(500);
+        Serial.println("IGNITE COUNTDOWN");
         if(IGN_Status_1==3&&!digitalRead(IGN_pin)){
           messageData.IGN_FIRE=1;
           sendTo(remoteMac_1);
           LED(255,255,0);
-          delay(500);
           messageData.IGN_FIRE=0;
+          Serial.println("KABOOM!!!");
+          delay(500);
+          
         }
       }
     }
     if(!digitalRead(RX2_pin)){
       if(IGN_Status_2==0){
         LED(0,255,255);
+        Serial.println("RX2 Ign STATUS disconnected");
       }
       if(IGN_Status_2==1){
         LED(0,255,0);
+        Serial.println("RX2 Ign STATUS NO IGNITER");
       }
       if(IGN_Status_2==2){
         LED(255,0,0);
+        Serial.println("RX2 Ign STATUS IGNITER OK");
       }
       if(IGN_Status_2==3){
         LED(255,0,255);
+        Serial.println("RX2 Ign STATUS ARMED");
       }
       if(IGN_Status_2==3&&!digitalRead(IGN_pin)){
         LED(0,0,0);
+        Serial.println("IGNITE COUNTDOWN");
         delay(500);
         if(IGN_Status_2==3&&!digitalRead(IGN_pin)){
           messageData.IGN_FIRE=1;
           sendTo(remoteMac_2);
           LED(255,255,0);
-          delay(500);
           messageData.IGN_FIRE=0;
+          Serial.println("KABOOM!!!");
+          delay(500);
+          
         }
       }
+    }
+    if(digitalRead(RX1_pin)&&digitalRead(RX2_pin)){
+      LED(255,255,255);
     }
   }
   if(millis()>timer_rx1+RCV_TIMEOUT){
