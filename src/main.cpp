@@ -8,7 +8,7 @@
 #define IGN_pin 15
 #define RX1_pin 13
 #define RX2_pin 2
-
+#define FLASH_pin 0
 
 int IGN_Status_1=0; // 0 - disconected 1-no igniter 2-Ready unarmed 3-Ready ARMED
 int IGN_Status_2=0;
@@ -120,6 +120,7 @@ void setup() {
   pinMode(IGN_pin, INPUT);
   pinMode(RX1_pin, INPUT_PULLUP);
   pinMode(RX2_pin, INPUT_PULLUP);
+  pinMode(FLASH_pin, INPUT_PULLUP);
   pinMode(R_Led_pin, OUTPUT);
   pinMode(G_Led_pin, OUTPUT);
   pinMode(B_Led_pin, OUTPUT);
@@ -168,17 +169,18 @@ void loop() {
         LED(255,0,255);
         Serial.println("RX1 Ign STATUS ARMED");
       }
-      if(IGN_Status_1==3&&!digitalRead(IGN_pin)){
-        LED(0,0,0);
+      if(IGN_Status_1==3&&digitalRead(IGN_pin)){
+        pinMode(RX2_pin, INPUT_PULLUP);
         delay(500);
         Serial.println("IGNITE COUNTDOWN");
-        if(IGN_Status_1==3&&!digitalRead(IGN_pin)){
+        if(IGN_Status_1==3&&digitalRead(IGN_pin)){
           messageData.IGN_FIRE=1;
           sendTo(remoteMac_1);
           LED(255,255,0);
           messageData.IGN_FIRE=0;
           Serial.println("KABOOM!!!");
-          delay(500);
+          LED(255,255,255);
+          delay(1000);
           
         }
       }
@@ -200,17 +202,18 @@ void loop() {
         LED(255,0,255);
         Serial.println("RX2 Ign STATUS ARMED");
       }
-      if(IGN_Status_2==3&&!digitalRead(IGN_pin)){
+      if(IGN_Status_2==3&&digitalRead(IGN_pin)){
         LED(0,0,0);
         Serial.println("IGNITE COUNTDOWN");
         delay(500);
-        if(IGN_Status_2==3&&!digitalRead(IGN_pin)){
+        if(IGN_Status_2==3&&digitalRead(IGN_pin)){
           messageData.IGN_FIRE=1;
           sendTo(remoteMac_2);
           LED(255,255,0);
           messageData.IGN_FIRE=0;
           Serial.println("KABOOM!!!");
-          delay(500);
+          LED(255,255,255);
+          delay(1000);
           
         }
       }
