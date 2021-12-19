@@ -132,8 +132,8 @@ void setup() {
   WiFi.disconnect();
 
   Serial.printf("This mac: %s, \n", WiFi.macAddress().c_str()); 
-  Serial.printf("target mac 1: %02x%02x%02x%02x%02x%02x\n", remoteMac_1[0], remoteMac_1[1], remoteMac_1[2], remoteMac_1[3], remoteMac_1[4], remoteMac_1[5]); 
-  Serial.printf("target mac 2: %02x%02x%02x%02x%02x%02x\n", remoteMac_2[0], remoteMac_2[1], remoteMac_2[2], remoteMac_2[3], remoteMac_2[4], remoteMac_2[5]); 
+  Serial.printf("target mac 1: %02x:%02x:%02x:%02x:%02x:%02x\n", remoteMac_1[0], remoteMac_1[1], remoteMac_1[2], remoteMac_1[3], remoteMac_1[4], remoteMac_1[5]); 
+  Serial.printf("target mac 2: %02x:%02x:%02x:%02x:%02x:%02x\n", remoteMac_2[0], remoteMac_2[1], remoteMac_2[2], remoteMac_2[3], remoteMac_2[4], remoteMac_2[5]); 
   Serial.printf(", channel: %i\n", WIFI_CHANNEL); 
   formatMacAddress(remoteMac_1, macBuf, 18);
   Serial.println(macBuf);
