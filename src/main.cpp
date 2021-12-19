@@ -14,10 +14,12 @@ int IGN_Status_1=0; // 0 - disconected 1-no igniter 2-Ready unarmed 3-Ready ARME
 int IGN_Status_2=0;
 int IGN_FIRE_1=0;
 int IGN_FIRE_2=0;
+unsigned long timer;
+unsigned long timer_rx1;
+unsigned long timer_rx2;
+#define RCV_TIMEOUT 2000
+#define SEND_TIMEOUT 500 
 
-
-#define SEND_TIMEOUT 100 
-#define SLEEP_SECS 5 //5 sec
 
 volatile boolean callbackCalled;
 
@@ -70,15 +72,17 @@ void initEspNow() {
     Serial.print("recv_cb, msg from device: "); 
     Serial.println(macStr);
 
-      if(messageData.Sender==11) {
+      if(messageData.Sender==201) {
         Serial.print("Odbiornik 1 Status: ");
         Serial.print(messageData.IGN_Status);
         IGN_Status_1=messageData.IGN_Status;
+        timer_rx1 = millis();
       }
-      if(messageData.Sender==12) {
+      if(messageData.Sender==301) {
         Serial.print("Odbiornik 2 Status: ");
         Serial.print(messageData.IGN_Status);
         IGN_Status_2=messageData.IGN_Status;
+        timer_rx2 = millis();
       }
 
 
@@ -144,27 +148,69 @@ void setup() {
 
 
 void loop() {
-  if(digitalRead(RX2_pin)||digitalRead(RX1_pin)) {
-    LED(0,255,255);
-  }
-  if(!digitalRead(RX1_pin)) {
-    messageData.IGN_Status = 1;
-    sendAll();
-    LED(255,0,255);
-  }
 
-  if(!digitalRead(RX2_pin)) {
-    messageData.IGN_Status = 2;
-    sendTo(remoteMac_1);
-    LED(255,255,0);
-  }
+  if(millis()>timer+SEND_TIMEOUT){
 
-  if(digitalRead(IGN_pin)) {
-    messageData.IGN_Status = 3;
-    sendTo(remoteMac_2);
-    LED(255,0,0);
+    if(!digitalRead(RX1_pin)){
+      if(IGN_Status_1==0){
+        LED(0,255,255);
+      }
+      if(IGN_Status_1==1){
+        LED(0,255,0);
+      }
+      if(IGN_Status_1==2){
+        LED(255,0,0);
+      }
+      if(IGN_Status_1==3){
+        LED(255,0,255);
+      }
+      if(IGN_Status_1==3&&!digitalRead(IGN_pin)){
+        LED(0,0,0);
+        delay(500);
+        if(IGN_Status_1==3&&!digitalRead(IGN_pin)){
+          messageData.IGN_FIRE=1;
+          sendTo(remoteMac_1);
+          LED(255,255,0);
+          delay(500);
+          messageData.IGN_FIRE=0;
+        }
+      }
+    }
+    if(!digitalRead(RX2_pin)){
+      if(IGN_Status_2==0){
+        LED(0,255,255);
+      }
+      if(IGN_Status_2==1){
+        LED(0,255,0);
+      }
+      if(IGN_Status_2==2){
+        LED(255,0,0);
+      }
+      if(IGN_Status_2==3){
+        LED(255,0,255);
+      }
+      if(IGN_Status_2==3&&!digitalRead(IGN_pin)){
+        LED(0,0,0);
+        delay(500);
+        if(IGN_Status_2==3&&!digitalRead(IGN_pin)){
+          messageData.IGN_FIRE=1;
+          sendTo(remoteMac_2);
+          LED(255,255,0);
+          delay(500);
+          messageData.IGN_FIRE=0;
+        }
+      }
+    }
   }
-  delay(500);
+  if(millis()>timer_rx1+RCV_TIMEOUT){
+    IGN_Status_1=0;
+    timer_rx1=millis();
+    }
+  if(millis()>timer_rx2+RCV_TIMEOUT){
+    IGN_Status_2=0;
+    timer_rx2=millis();
+    }
+    
 }
 
 
